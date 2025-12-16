@@ -372,6 +372,210 @@ aws ecr delete-repository --repository-name genai-eks-app --force
 ```
 
 ---
+Great 👍
+Since your **local app is now running with a small model**, the **next steps are exactly these 5 phases**.
+Follow them **in order**, don’t skip anything.
+
+---
+
+# 🚀 NEXT STEPS: From Local → Docker → AWS ECR → EKS
+
+---
+
+## ✅ PHASE 1: Final Local Verification (2 minutes)
+
+Run:
+
+```bat
+uvicorn app.main:app
+```
+
+Open:
+
+```
+http://127.0.0.1:8000/docs
+```
+
+✔ Test `/summarize`
+✔ Confirm it works
+
+👉 **Only continue if this works**
+
+---
+
+## 🐳 PHASE 2: Build Docker Image (Local)
+
+### 1️⃣ Check Docker
+
+```bat
+docker --version
+```
+
+---
+
+### 2️⃣ Build image
+
+From project root:
+
+```bat
+docker build -t genai-eks-app .
+```
+
+---
+
+### 3️⃣ Run container locally
+
+```bat
+docker run -p 8000:8000 genai-eks-app
+```
+
+Test again:
+
+```
+http://localhost:8000/docs
+```
+
+✔ If this works → Docker is DONE
+
+---
+
+## 📤 PHASE 3: Push Image to AWS ECR
+
+### 1️⃣ Configure AWS CLI (once)
+
+```bat
+aws configure
+```
+
+---
+
+### 2️⃣ Create ECR repository
+
+```bat
+aws ecr create-repository \
+--repository-name genai-eks-app \
+--region us-east-1
+```
+
+Copy:
+
+```
+repositoryUri
+```
+
+---
+
+### 3️⃣ Login Docker to ECR
+
+```bat
+aws ecr get-login-password --region us-east-1 ^
+| docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+```
+
+---
+
+### 4️⃣ Tag & push image
+
+```bat
+docker tag genai-eks-app:latest <ECR_URI>:latest
+docker push <ECR_URI>:latest
+```
+
+✔ Image is now in AWS
+
+---
+
+## ☸️ PHASE 4: Create AWS EKS Cluster
+
+### 1️⃣ Install eksctl (once)
+
+* Download from GitHub (Windows)
+* Verify:
+
+```bat
+eksctl version
+```
+
+---
+
+### 2️⃣ Create cluster (15 mins)
+
+```bat
+eksctl create cluster ^
+--name genai-cluster ^
+--region us-east-1 ^
+--nodegroup-name genai-nodes ^
+--node-type t3.small ^
+--nodes 2
+```
+
+---
+
+### 3️⃣ Verify
+
+```bat
+aws eks update-kubeconfig --name genai-cluster --region us-east-1
+kubectl get nodes
+```
+
+---
+
+## ☸️ PHASE 5: Deploy App on EKS
+
+### 1️⃣ Update image in `k8s/deployment.yaml`
+
+```yaml
+image: <ECR_URI>:latest
+```
+
+---
+
+### 2️⃣ Deploy
+
+```bat
+kubectl apply -f k8s/
+```
+
+---
+
+### 3️⃣ Get public URL
+
+```bat
+kubectl get svc genai-service
+```
+
+Copy:
+
+```
+EXTERNAL-IP
+```
+
+---
+
+### 4️⃣ Test
+
+```
+http://<EXTERNAL-IP>/docs
+```
+
+🎉 **GenAI app LIVE on AWS EKS**
+
+---
+
+## 🧹 PHASE 6: CLEAN UP (CRITICAL – Avoid Bills)
+
+After demo:
+
+```bat
+eksctl delete cluster --name genai-cluster --region us-east-1
+aws ecr delete-repository --repository-name genai-eks-app --force
+```
+
+---
+
+
+
+
 
 
 
