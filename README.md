@@ -821,6 +821,71 @@ http://54.:8000/docs
 
 (Only works if **security group port 8000** is open)
 
+*************with out docker aws deloy to ec2
+
+## ✅ WHAT YOU SHOULD DO NOW (Correct Path)
+
+### ✔ Step 1: STOP trying SSH inside EC2
+
+You already succeeded earlier.
+
+Do **NOT** run:
+
+```bash
+ssh -i ...
+```
+
+from this prompt.
+
+---
+
+### ✔ Step 2: Continue EC2 setup (this is the right step now)
+
+From:
+
+```
+[ec2-user@ip-126 ~]$
+```
+
+Run:
+
+```bash
+sudo dnf update -y
+sudo dnf install python3 git -y
+```
+
+---
+
+### ✔ Step 3: Clone your GitHub project
+
+```bash
+git clone https://github.com/YOUR_USERNAME/GenAI-Text-Summarizer.git
+cd GenAI-Text-Summarizer
+```
+
+---
+
+### ✔ Step 4: Setup & run app
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+---
+
+### ✔ Step 5: Test from browser
+
+Open on your laptop:
+
+```
+http://39:8000/docs
+```
+
+
+
 
 
 
